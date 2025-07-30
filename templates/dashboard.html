@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Estratégico de Roleta v11.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      :root {
+        --color-red: #ef4444;
+        --color-black: #27272a;
+        --color-green: #22c55e;
+        --bg-darker: #0c111c;
+        --bg-dark: #161e31;
+        --bg-medium: #2a3652;
+        --text-light: #e2e8f0;
+        --text-dim: #94a3b8;
+        --accent-purple: #8b5cf6;
+        --accent-amber: #f59e0b;
+        --accent-teal: #14b8a6;
+      }
+      body {
+        background-color: var(--bg-darker);
+        color: var(--text-light);
+        font-family: "Inter", sans-serif;
+      }
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+      .card {
+        background-color: var(--bg-dark);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        border: 1px solid var(--bg-medium);
+        transition: all 0.3s ease;
+      }
+      .card:hover {
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+        border-color: rgba(139, 92, 246, 0.4);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--bg-medium);
+        padding-bottom: 0.75rem;
+      }
+      .card-header ion-icon {
+        color: var(--accent-purple);
+        font-size: 1.25rem;
+      }
+      .number-box {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        border-radius: 50%;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+        font-size: 0.9rem;
+      }
+      .number-box.red {
+        background-color: var(--color-red);
+        color: white;
+      }
+      .number-box.black {
+        background-color: var(--color-black);
+        color: white;
+      }
+      .number-box.green {
+        background-color: var(--color-green);
+        color: white;
+      }
+      .input-grid .number-box {
+        cursor: pointer;
+      }
+      .input-grid .number-box:hover {
+        transform: scale(1.15);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      }
+
+      /* Estilos para Abas */
+      .tab-button, .session-tab-button {
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        color: var(--text-dim);
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s ease;
+      }
+      .tab-button:hover, .session-tab-button:hover {
+        color: var(--text-light);
+      }
+      .tab-button.active, .session-tab-button.active {
+        color: var(--accent-amber);
+        border-bottom-color: var(--accent-amber);
+      }
+      .tab-content, .session-tab-content {
+        display: none;
+        animation: fadeIn 0.5s;
+        padding-top: 1rem;
+      }
+      .tab-content.active, .session-tab-content.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+  <body class="p-4 md:p-6">
+    <header class="text-center mb-8">
+      <h1
+        class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-amber-400"
+      >
+        Dashboard Estratégico de Roleta
+      </h1>
+      <p class="text-md text-gray-400 mt-1">
+        Total de Giros Analisados:
+        <span id="total-spins" class="font-bold text-white">0</span>
+      </p>
+    </header>
+
+    <div class="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <aside class="lg:col-span-1 space-y-6">
+        <div class="card">
+          <div class="card-header">
+            <ion-icon name="keypad-outline"></ion-icon>Adicionar Giro
+          </div>
+          <div class="input-grid grid grid-cols-7 gap-2"></div>
+          <button
+            id="delete-last-spin"
+            class="w-full mt-4 bg-red-600/80 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+          >
+            Remover Último Giro
+          </button>
+        </div>
+
+        <div class="card bg-slate-900/40">
+            <div class="card-header">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>Controle de Sessão
+            </div>
+            <div class="border-b border-gray-600">
+                <nav id="session-tabs-nav" class="-mb-px flex space-x-2 sm:space-x-4 overflow-x-auto">
+                    <button class="session-tab-button active" data-tab="session-tab-bankroll">Banca</button>
+                    <button class="session-tab-button" data-tab="session-tab-dealer">Dealer</button>
+                </nav>
+            </div>
+            <div id="session-tabs-content">
+                <div id="session-tab-bankroll" class="session-tab-content active">
+                    <div id="bankroll-manager-card">
+                        <div id="bankroll-setup">
+                            <div class="space-y-3 text-sm">
+                                <div>
+                                    <label for="initial-bankroll" class="block mb-1 text-gray-400">Banca Inicial (un.)</label>
+                                    <input type="number" id="initial-bankroll" value="100" class="w-full p-2 rounded-md bg-slate-700 border border-slate-600 focus:ring-purple-500 focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label for="stop-loss" class="block mb-1 text-gray-400">Stop-Loss (%)</label>
+                                    <input type="number" id="stop-loss" value="20" class="w-full p-2 rounded-md bg-slate-700 border border-slate-600 focus:ring-purple-500 focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label for="stop-win" class="block mb-1 text-gray-400">Stop-Win (%)</label>
+                                    <input type="number" id="stop-win" value="40" class="w-full p-2 rounded-md bg-slate-700 border border-slate-600 focus:ring-purple-500 focus:outline-none" />
+                                </div>
+                                <button id="start-session-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Iniciar Sessão de Banca</button>
+                            </div>
+                        </div>
+                        <div id="bankroll-display" class="hidden text-sm space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Balanço Atual:</span>
+                                <span id="bankroll-current" class="font-bold text-lg"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Lucro/Prejuízo:</span>
+                                <span id="bankroll-profit" class="font-bold text-lg"></span>
+                            </div>
+                            <p id="bankroll-status-message" class="text-xs text-center bg-slate-800 p-2 rounded-md mt-2"></p>
+                            <button id="stop-session-btn" class="w-full mt-2 bg-red-600/80 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Parar Sessão de Banca</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="session-tab-dealer" class="session-tab-content">
+                    <div id="session-manager-card">
+                        <div id="session-setup">
+                            <div class="space-y-3 text-sm">
+                                <input type="text" id="session-name" placeholder="Ex: Dealer_Joana_Mesa_2" class="w-full p-2 rounded-md bg-slate-700 border border-slate-600 focus:ring-purple-500 focus:outline-none" />
+                                <button id="start-dealer-session-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Iniciar Sessão de Dealer</button>
+                            </div>
+                        </div>
+                        <div id="session-display" class="hidden text-sm space-y-2">
+                            <p class="text-center">Sessão ativa: <strong id="session-current-name" class="text-teal-300"></strong></p>
+                            <button id="stop-dealer-session-btn" class="w-full mt-2 bg-red-600/80 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Parar Sessão de Dealer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </aside>
+
+      <main class="lg:col-span-2 space-y-6">
+        <div class="card">
+          <div class="border-b border-gray-600">
+            <nav
+              id="tabs-nav"
+              class="-mb-px flex space-x-2 sm:space-x-4 overflow-x-auto"
+              aria-label="Tabs"
+            >
+              <button class="tab-button active" data-tab="tab-summary">
+                Resumo
+              </button>
+              <button class="tab-button" data-tab="tab-stats">
+                Estatísticas
+              </button>
+              <button class="tab-button" data-tab="tab-patterns">
+                Análise de Padrões
+              </button>
+              <button class="tab-button" data-tab="tab-tools">
+                Ferramentas & IA
+              </button>
+            </nav>
+          </div>
+
+          <div id="tabs-content">
+            <div id="tab-summary" class="tab-content active">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div id="analyst-bulletin-card" class="md:col-span-1"></div>
+                <div id="ml-prediction-card" class="md:col-span-1"></div>
+                <div
+                  id="ml-numbers-prediction-card"
+                  class="md:col-span-1"
+                ></div>
+              </div>
+            </div>
+
+            <div id="tab-stats" class="tab-content">
+              <h3 class="font-bold text-xl mb-4 text-gray-300">
+                Estatísticas de Grupos
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+                <div id="dozens-stats"></div>
+                <div id="columns-stats"></div>
+                <div id="halves-stats"></div>
+                <div id="wheel-bets-stats" class="md:col-span-3"></div>
+              </div>
+              <div class="border-t border-gray-700 my-6"></div>
+              <h3 class="font-bold text-xl mb-4 text-gray-300">
+                Todos os Números
+              </h3>
+              <div
+                id="all-numbers-table"
+                class="overflow-y-auto max-h-[450px]"
+              ></div>
+            </div>
+
+            <div id="tab-patterns" class="tab-content">
+              <h3 class="font-bold text-xl mb-4 text-gray-300">
+                Análises de Padrões Heurísticos
+              </h3>
+              <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+              >
+                <div
+                  id="follower-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="neighbor-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="streak-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="pressure-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div id="twin-analysis" class="card !p-3 bg-slate-900/40"></div>
+                <div
+                  id="wheel-jump-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="alternating-patterns-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="final-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="mirror-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="post-zero-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="sequence-analysis"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+                <div
+                  id="coverage-cycle"
+                  class="card !p-3 bg-slate-900/40"
+                ></div>
+              </div>
+            </div>
+
+            <div id="tab-tools" class="tab-content">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <h3 class="font-bold text-xl mb-4 text-gray-300">
+                    Backtest de Estratégias
+                  </h3>
+                  <div id="backtest-card" class="card bg-slate-900/40">
+                    <div class="space-y-4">
+                      <select
+                        id="strategy-selector"
+                        class="w-full p-2 rounded-md bg-slate-700 border border-slate-600 text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                      >
+                        <option value="">Selecione uma estratégia</option>
+                      </select>
+                      <button
+                        id="run-backtest-btn"
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                      >
+                        Executar Backtest
+                      </button>
+                      <div id="backtest-results" class="text-sm">
+                        <p class="text-gray-500 text-center">
+                          Os resultados do backtest aparecerão aqui.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 class="font-bold text-xl mt-6 mb-4 text-gray-300">
+                    Aprendizado da IA (Análise de Erros)
+                  </h3>
+                  <div
+                    id="learning-cards-container"
+                    class="space-y-4 max-h-96 overflow-y-auto"
+                  ></div>
+                </div>
+                <div>
+                  <h3 class="font-bold text-xl mb-4 text-gray-300">
+                    Otimização e Performance
+                  </h3>
+                  <div class="card bg-slate-900/40 mb-6">
+                    <div class="card-header">
+                      <ion-icon name="construct-outline"></ion-icon>Log de
+                      Otimização Automática
+                    </div>
+                    <div
+                      id="optimization-log-container"
+                      class="space-y-2 text-sm max-h-48 overflow-y-auto"
+                    ></div>
+                  </div>
+                  <div class="card bg-slate-900/40">
+                    <div class="card-header">
+                      <ion-icon name="rocket-outline"></ion-icon>Desempenho das
+                      IAs (Simulação)
+                    </div>
+                    <div
+                      id="live-sims-card-content"
+                      class="text-sm space-y-2 max-h-96 overflow-y-auto"
+                    ></div>
+                  </div>
+                  <h3 class="font-bold text-xl mt-6 mb-4 text-gray-300">
+                    Performance dos Modelos ML
+                  </h3>
+                  <div id="ml-performance-container" class="space-y-4"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="lg:col-span-1 space-y-6">
+        <div class="card">
+          <div class="card-header">
+            <ion-icon name="trophy-outline"></ion-icon>Performance da IA
+          </div>
+          <div id="ia-performance-card"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <ion-icon name="flame-outline"></ion-icon>Quentes & Frios
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <h4 class="font-bold text-red-400 mb-2">HOT</h4>
+              <div
+                id="hot-numbers-list"
+                class="flex flex-col items-center gap-2"
+              ></div>
+            </div>
+            <div>
+              <h4 class="font-bold text-blue-400 mb-2">COLD</h4>
+              <div
+                id="cold-numbers-list"
+                class="flex flex-col items-center gap-2"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <ion-icon name="time-outline"></ion-icon>Últimos Giros
+          </div>
+          <div id="history-display" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <ion-icon name="alert-circle-outline"></ion-icon>Alertas
+          </div>
+          <div id="alerts-display" class="space-y-2 text-sm"></div>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // << MELHORIA >> Lógica de abas agora é uma função reutilizável
+        const setupTabs = (navSelector, contentSelector, buttonClass, contentClass) => {
+            const tabs = document.querySelectorAll(buttonClass);
+            const tabContents = document.querySelectorAll(contentClass);
+            const nav = document.querySelector(navSelector);
+            if (!nav) return;
+
+            nav.addEventListener("click", (e) => {
+                if (!e.target.matches(buttonClass)) return;
+                
+                const tab = e.target;
+                const target = document.getElementById(tab.dataset.tab);
+
+                tabs.forEach((t) => t.classList.remove("active"));
+                tab.classList.add("active");
+
+                tabContents.forEach((c) => c.classList.remove("active"));
+                target.classList.add("active");
+            });
+        };
+
+        setupTabs("#tabs-nav", "#tabs-content", ".tab-button", ".tab-content");
+        setupTabs("#session-tabs-nav", "#session-tabs-content", ".session-tab-button", ".session-tab-content");
+
+
+        const dom = {
+          totalSpinsEl: document.getElementById("total-spins"),
+          inputGrid: document.querySelector(".input-grid"),
+          deleteBtn: document.getElementById("delete-last-spin"),
+          historyDisplay: document.getElementById("history-display"),
+          hotNumbersList: document.getElementById("hot-numbers-list"),
+          coldNumbersList: document.getElementById("cold-numbers-list"),
+          alertsDisplay: document.getElementById("alerts-display"),
+          analystBulletinCard: document.getElementById("analyst-bulletin-card"),
+          mlPredictionCard: document.getElementById("ml-prediction-card"),
+          mlNumbersPredictionCard: document.getElementById(
+            "ml-numbers-prediction-card"
+          ),
+          iaPerformanceCard: document.getElementById("ia-performance-card"),
+          stats: {
+            dozens: document.getElementById("dozens-stats"),
+            columns: document.getElementById("columns-stats"),
+            halves: document.getElementById("halves-stats"),
+            wheelBets: document.getElementById("wheel-bets-stats"),
+          },
+          intelligence: {
+            sequences: document.getElementById("sequence-analysis"),
+            coverage: document.getElementById("coverage-cycle"),
+            mirrors: document.getElementById("mirror-analysis"),
+            followers: document.getElementById("follower-analysis"),
+            neighbors: document.getElementById("neighbor-analysis"),
+            streaks: document.getElementById("streak-analysis"),
+            pressure: document.getElementById("pressure-analysis"),
+            postZero: document.getElementById("post-zero-analysis"),
+            finals: document.getElementById("final-analysis"),
+            twins: document.getElementById("twin-analysis"),
+            alternatingPatterns: document.getElementById(
+              "alternating-patterns-analysis"
+            ),
+            wheelJumps: document.getElementById("wheel-jump-analysis"),
+          },
+          backtest: {
+            container: document.getElementById("backtest-card"),
+            selector: document.getElementById("strategy-selector"),
+            runBtn: document.getElementById("run-backtest-btn"),
+            results: document.getElementById("backtest-results"),
+          },
+          session: {
+            setupDiv: document.getElementById("session-setup"),
+            displayDiv: document.getElementById("session-display"),
+            nameInput: document.getElementById("session-name"),
+            startBtn: document.getElementById("start-dealer-session-btn"),
+            stopBtn: document.getElementById("stop-dealer-session-btn"),
+            currentNameEl: document.getElementById("session-current-name"),
+          },
+          bankroll: {
+            setupDiv: document.getElementById("bankroll-setup"),
+            displayDiv: document.getElementById("bankroll-display"),
+            initialInput: document.getElementById("initial-bankroll"),
+            stopLossInput: document.getElementById("stop-loss"),
+            stopWinInput: document.getElementById("stop-win"),
+            startBtn: document.getElementById("start-session-btn"),
+            stopBtn: document.getElementById("stop-session-btn"),
+            statusMsg: document.getElementById("bankroll-status-message"),
+            currentEl: document.getElementById("bankroll-current"),
+            profitEl: document.getElementById("bankroll-profit"),
+          },
+          learningCardsContainer: document.getElementById(
+            "learning-cards-container"
+          ),
+          mlPerformanceContainer: document.getElementById(
+            "ml-performance-container"
+          ),
+          allNumbersTableContainer:
+            document.getElementById("all-numbers-table"),
+          optimizationLogContainer: document.getElementById(
+            "optimization-log-container"
+          ),
+          liveSimsContent: document.getElementById("live-sims-card-content"),
+        };
+
+        let state = { rouletteColors: {} };
+        let backtestChart = null; // Variável para manter a instância do gráfico
+        const api = {
+          fetchData: async () => {
+            try {
+              const response = await fetch("/api/dados");
+              if (!response.ok)
+                throw new Error(`HTTP error! status: ${response.status}`);
+              const data = await response.json();
+              renderAll(data);
+            } catch (error) {
+              console.error("Erro fatal no fetchData:", error);
+              document.body.innerHTML = `<div class="h-screen flex items-center justify-center text-center p-10 text-red-400"><div class="max-w-md"><p class="text-5xl mb-4">💥</p><h2 class="text-2xl font-bold text-white">Erro de Conexão com o Servidor</h2><p class="mt-2 text-gray-400">Verifique se o servidor <strong class="text-white">app.py</strong> está em execução no terminal e recarregue a página.</p></div></div>`;
+            }
+          },
+          fetchMLPerformance: async () => {
+            try {
+              const response = await fetch("/api/ml_performance");
+              if (!response.ok)
+                throw new Error("Falha ao buscar performance do ML");
+              const data = await response.json();
+              renderMLPerformance(dom.mlPerformanceContainer, data);
+            } catch (error) {
+              console.error(
+                "Erro ao buscar dados de performance do ML:",
+                error
+              );
+              if (dom.mlPerformanceContainer)
+                dom.mlPerformanceContainer.innerHTML = `<p class="text-red-400">Não foi possível carregar os dados de performance.</p>`;
+            }
+          },
+          addSpin: async (number) => {
+            try {
+              const response = await fetch("/api/giros", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ numero: number }),
+              });
+              if (!response.ok)
+                throw new Error(
+                  (await response.json()).erro || "Falha ao registrar giro"
+                );
+              api.fetchLiveSims();
+              api.fetchData();
+              api.fetchLearningData();
+              api.fetchMLPerformance();
+              api.fetchOptimizationLog();
+            } catch (error) {
+              console.error("Erro no addSpin:", error);
+              alert(`Erro: ${error.message}`);
+            }
+          },
+          deleteLastSpin: async () => {
+            if (!confirm("Tem certeza que deseja remover o último giro?"))
+              return;
+            try {
+              const response = await fetch("/api/giros/ultimo", {
+                method: "DELETE",
+              });
+              if (!response.ok)
+                throw new Error(
+                  (await response.json()).info || "Falha ao remover giro"
+                );
+              api.fetchData();
+              api.fetchLearningData();
+              api.fetchLiveSims();
+            } catch (error) {
+              console.error("Erro no deleteLastSpin:", error);
+              alert(`Erro: ${error.message}`);
+            }
+          },
+          fetchStrategists: async () => {
+            try {
+              const response = await fetch("/api/strategists");
+              if (!response.ok)
+                throw new Error("Falha ao buscar estrategistas");
+              const strategists = await response.json();
+              const selector = dom.backtest.selector;
+              selector.innerHTML =
+                '<option value="">Selecione uma estratégia</option>';
+              for (const [name, description] of Object.entries(strategists)) {
+                const option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                option.title = description;
+                selector.appendChild(option);
+              }
+            } catch (error) {
+              console.error("Erro no fetchStrategists:", error);
+            }
+          },
+          runBacktest: async () => {
+            const strategyName = dom.backtest.selector.value;
+            if (!strategyName) {
+              alert("Por favor, selecione uma estratégia para o backtest.");
+              return;
+            }
+            const btn = dom.backtest.runBtn;
+            const resultsEl = dom.backtest.results;
+            btn.disabled = true;
+            btn.textContent = "Executando...";
+            resultsEl.innerHTML =
+              '<p class="text-amber-400 text-center">Calculando... Isso pode levar alguns segundos.</p>';
+            try {
+              const response = await fetch("/api/backtest", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ strategy_name: strategyName }),
+              });
+              const results = await response.json();
+              if (!response.ok)
+                throw new Error(
+                  results.error || "Erro desconhecido no backtest"
+                );
+
+              // << MELHORIA >> Lógica de renderização do backtest agora inclui o gráfico
+              renderBacktestResults(resultsEl, results);
+
+            } catch (error) {
+              console.error("Erro no runBacktest:", error);
+              resultsEl.innerHTML = `<p class="text-red-500">Erro: ${error.message}</p>`;
+            } finally {
+              btn.disabled = false;
+              btn.textContent = "Executar Backtest";
+            }
+          },
+          fetchLearningData: async () => {
+            try {
+              const response = await fetch("/api/analises_de_erros");
+              if (!response.ok)
+                throw new Error(`HTTP error! status: ${response.status}`);
+              const data = await response.json();
+              renderLearningAnalysis(dom.learningCardsContainer, data);
+            } catch (error) {
+              console.error("Erro ao buscar dados de aprendizado:", error);
+              if (dom.learningCardsContainer) {
+                dom.learningCardsContainer.innerHTML = `<p class="text-red-400">Não foi possível carregar as análises de aprendizado.</p>`;
+              }
+            }
+          },
+          fetchOptimizationLog: async () => {
+            try {
+              const response = await fetch("/api/optimization_log");
+              const data = await response.json();
+              renderOptimizationLog(dom.optimizationLogContainer, data);
+            } catch (error) {
+              console.error("Erro ao buscar log de otimização:", error);
+            }
+          },
+
+          fetchBankrollStatus: async () => {
+            try {
+              const response = await fetch("/api/bankroll/status");
+              const data = await response.json();
+              renderBankrollStatus(data);
+            } catch (error) {
+              console.error("Erro ao buscar status da banca:", error);
+            }
+          },
+          startBankrollSession: async () => {
+            const initial = dom.bankroll.initialInput.value;
+            const stopLoss = dom.bankroll.stopLossInput.value / 100; // Converte de % para decimal
+            const stopWin = dom.bankroll.stopWinInput.value / 100;
+
+            try {
+              await fetch("/api/bankroll/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  initial_bankroll: initial,
+                  stop_loss: stopLoss,
+                  stop_win: stopWin,
+                }),
+              });
+              api.fetchBankrollStatus(); // Atualiza a exibição
+            } catch (error) {
+              console.error("Erro ao iniciar sessão:", error);
+            }
+          },
+          stopBankrollSession: async () => {
+            try {
+              await fetch("/api/bankroll/stop", { method: "POST" });
+              api.fetchBankrollStatus(); // Atualiza a exibição
+            } catch (error) {
+              console.error("Erro ao parar sessão:", error);
+            }
+          },
+          fetchSessionStatus: async () => {
+            try {
+              const response = await fetch("/api/session/status");
+              const data = await response.json();
+              renderSessionStatus(data);
+            } catch (error) {
+              console.error("Erro ao buscar status da sessão:", error);
+            }
+          },
+          startSession: async () => {
+            const name = dom.session.nameInput.value;
+            if (!name) {
+              alert("Por favor, insira um nome para a sessão.");
+              return;
+            }
+            try {
+              await fetch("/api/session/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ session_name: name }),
+              });
+              api.fetchSessionStatus();
+            } catch (error) {
+              console.error("Erro ao iniciar sessão:", error);
+            }
+          },
+          stopSession: async () => {
+            try {
+              await fetch("/api/session/stop", { method: "POST" });
+              api.fetchSessionStatus();
+            } catch (error) {
+              console.error("Erro ao parar sessão:", error);
+            }
+          },
+          fetchLiveSims: async () => {
+            try {
+              const response = await fetch("/api/live_simulations");
+              if (!response.ok) throw new Error("Falha ao buscar simulações");
+              const data = await response.json();
+              renderLiveSims(dom.liveSimsContent, data);
+            } catch (error) {
+              console.error("Erro ao buscar dados de simulação:", error);
+              if (dom.liveSimsContent)
+                dom.liveSimsContent.innerHTML = `<p class="text-red-400">Não foi possível carregar as simulações.</p>`;
+            }
+          },
+        };
+
+        const renderSessionStatus = (data) => {
+          if (data && data.current_session_id) {
+            dom.session.setupDiv.classList.add("hidden");
+            dom.session.displayDiv.classList.remove("hidden");
+            dom.session.currentNameEl.textContent = data.current_session_id;
+          } else {
+            dom.session.setupDiv.classList.remove("hidden");
+            dom.session.displayDiv.classList.add("hidden");
+            dom.session.currentNameEl.textContent = "";
+          }
+        };
+
+        const renderBankrollStatus = (data) => {
+          if (!data) return;
+
+          if (data.is_active) {
+            dom.bankroll.setupDiv.classList.add("hidden");
+            dom.bankroll.displayDiv.classList.remove("hidden");
+          } else {
+            dom.bankroll.setupDiv.classList.remove("hidden");
+            dom.bankroll.displayDiv.classList.add("hidden");
+          }
+
+          dom.bankroll.statusMsg.textContent = data.status_message;
+          dom.bankroll.currentEl.textContent = `${data.current_bankroll.toFixed(
+            2
+          )} un.`;
+          dom.bankroll.profitEl.textContent = `${data.session_profit.toFixed(
+            2
+          )} un.`;
+
+          if (data.session_profit >= 0) {
+            dom.bankroll.profitEl.className =
+              "text-lg font-semibold text-green-400";
+          } else {
+            dom.bankroll.profitEl.className =
+              "text-lg font-semibold text-red-400";
+          }
+        };
+
+        const renderAll = (data) => {
+          state.rouletteColors = data.colors || {};
+          dom.totalSpinsEl.textContent = data.total_spins || 0;
+          if (!data.total_spins || data.total_spins === 0) {
+            Object.values(dom.stats).forEach((el) => (el.innerHTML = ""));
+            Object.values(dom.intelligence).forEach(
+              (el) => (el.innerHTML = "")
+            );
+            dom.historyDisplay.innerHTML =
+              '<p class="text-sm text-gray-500">Nenhum giro registrado.</p>';
+            dom.allNumbersTableContainer.innerHTML = `<tr><td colspan="4" class="text-center p-4">Nenhum dado para exibir.</td></tr>`;
+            renderAnalystBulletin(dom.analystBulletinCard, null);
+            renderMLPrediction(dom.mlPredictionCard, null);
+            renderMLNumbersPrediction(dom.mlNumbersPredictionCard, null);
+            renderIAPerformance(dom.iaPerformanceCard, null);
+            renderAlerts(dom.alertsDisplay, null);
+            renderHotCold([], []);
+            return;
+          }
+          renderHistory(data.historico_recente);
+          renderHotCold(data.hot_numbers, data.cold_numbers);
+          renderAnalystBulletin(dom.analystBulletinCard, data.intelligence);
+          renderMLPrediction(
+            dom.mlPredictionCard,
+            data.intelligence.ml_group_prediction
+          );
+          renderIAPerformance(dom.iaPerformanceCard, data.ia_performance);
+          renderNumbersTable(dom.allNumbersTableContainer, data.numbers_stats);
+          renderAlerts(dom.alertsDisplay, data.alerts);
+          renderStatGroup(
+            dom.stats.dozens,
+            "Dúzias",
+            data.group_stats["Dúzias"]
+          );
+          renderStatGroup(
+            dom.stats.columns,
+            "Colunas",
+            data.group_stats["Colunas"]
+          );
+          renderStatGroup(
+            dom.stats.halves,
+            "Metades",
+            data.group_stats["Metades"]
+          );
+          renderStatGroup(
+            dom.stats.wheelBets,
+            "Apostas na Roda",
+            data.group_stats["Apostas na Roda"]
+          );
+          renderFollowerAnalysis(
+            dom.intelligence.followers,
+            data.intelligence.follower_analysis
+          );
+          renderNeighborAnalysis(
+            dom.intelligence.neighbors,
+            data.intelligence.dynamic_neighbor_analysis
+          );
+          renderStreakAnalysis(
+            dom.intelligence.streaks,
+            data.intelligence.streak_analysis
+          );
+          renderPressureAnalysis(
+            dom.intelligence.pressure,
+            data.intelligence.pressure_analysis
+          );
+          renderPostZeroAnalysis(
+            dom.intelligence.postZero,
+            data.intelligence.post_zero_analysis
+          );
+          renderSequenceAnalysis(
+            dom.intelligence.sequences,
+            data.intelligence.sequences
+          );
+          renderCoverageCycle(
+            dom.intelligence.coverage,
+            data.intelligence.coverage_cycle
+          );
+          renderMirrorAnalysis(
+            dom.intelligence.mirrors,
+            data.intelligence.mirror_analysis
+          );
+          renderFinalAnalysis(
+            dom.intelligence.finals,
+            data.intelligence.final_analysis
+          );
+          renderTwinAnalysis(
+            dom.intelligence.twins,
+            data.intelligence.twin_analysis
+          );
+          renderAlternatingPatterns(
+            dom.intelligence.alternatingPatterns,
+            data.intelligence.alternating_patterns
+          );
+          renderWheelJumps(
+            dom.intelligence.wheelJumps,
+            data.intelligence.wheel_jump_analysis
+          );
+          renderMLNumbersPrediction(
+            dom.mlNumbersPredictionCard,
+            data.intelligence.ml_numbers_prediction
+          );
+        };
+
+        const createNumberElement = (number) => {
+          const el = document.createElement("div");
+          el.textContent = number;
+          el.className = `number-box ${
+            state.rouletteColors[number] || "black"
+          }`;
+          return el;
+        };
+        const renderInputGrid = () => {
+          dom.inputGrid.innerHTML = "";
+          for (let i = 0; i <= 36; i++) {
+            const btn = createNumberElement(i);
+            btn.addEventListener("click", () => api.addSpin(i));
+            dom.inputGrid.appendChild(btn);
+          }
+        };
+        const renderHistory = (history) => {
+          dom.historyDisplay.innerHTML = "";
+          if (history && history.length > 0) {
+            history.forEach((number) =>
+              dom.historyDisplay.appendChild(createNumberElement(number))
+            );
+          }
+        };
+        const renderHotCold = (hot, cold) => {
+            dom.hotNumbersList.innerHTML = hot
+                .map((n) => createNumberElement(n.num !== undefined ? n.num : n).outerHTML)
+                .join("");
+            dom.coldNumbersList.innerHTML = cold
+                .map((n) => createNumberElement(n.num !== undefined ? n.num : n).outerHTML)
+                .join("");
+        };
+        const renderNumbersTable = (element, numbersData) => {
+          if (!element) return;
+          let tableHtml = `
+                <table class="w-full text-sm text-left text-gray-400">
+                    <thead class="text-xs text-gray-300 uppercase bg-slate-800 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-2">Nº</th><th class="px-4 py-2">Hits</th><th class="px-4 py-2">Gap</th><th class="px-4 py-2">Desvio (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+          if (numbersData) {
+            tableHtml += Object.entries(numbersData)
+              .sort(([, a], [, b]) => a.gap - b.gap)
+              .map(
+                ([num, data]) => `
+                        <tr class="border-b border-gray-700/50 hover:bg-gray-600/20">
+                            <td class="px-4 py-2"><div class="number-box ${
+                              data.color
+                            } w-7 h-7 text-xs">${num}</div></td>
+                            <td class="px-4 py-2 font-medium">${data.hits}</td>
+                            <td class="px-4 py-2">${data.gap}</td>
+                            <td class="px-4 py-2 font-semibold ${
+                              data.deviation > 0 ? "text-red-400" : "text-blue-400"
+                            }">${(data.deviation * 100).toFixed(1)}%</td>
+                        </tr>
+                    `
+              )
+              .join("");
+          }
+          tableHtml += `</tbody></table>`;
+          element.innerHTML = tableHtml;
+        };
+        const renderStatGroup = (element, title, groupData) => {
+          if (!element || !groupData) return;
+          let html = `<h3 class="font-bold text-lg mb-2 text-gray-300">${title}</h3>`;
+          for (const [name, data] of Object.entries(groupData)) {
+            html += `<div class="mb-3"><div class="flex justify-between items-baseline mb-1"><span class="font-semibold text-gray-300 text-sm">${name}</span><span class="text-xs text-gray-400">${data.hits} (${data.percentage}%) | Gap: ${data.gap}</span></div></div>`;
+          }
+          element.innerHTML = html;
+        };
+
+        // << MELHORIA >> Lógica de boletim aprimorada para mais transparência
+        const renderAnalystBulletin = (element, data) => {
+            if (!element || !data || !data.analyst_bulletin) {
+                element.innerHTML = `<div class="card-header"><ion-icon name="bulb-outline"></ion-icon>Boletim da IA</div><p class="text-gray-400">Aguardando dados para análise...</p>`;
+                return;
+            }
+
+            const bulletin = data.analyst_bulletin;
+            const rhythm = data.game_rhythm || {};
+
+            const renderVerdict = (op) => {
+                if (!op) {
+                    return '<p class="text-sm text-gray-400 mt-2">Nenhuma oportunidade forte identificada.</p>';
+                }
+
+                const stake = op.stake_units || 0;
+                const profileColor = op.profile === "Momentum" ? "text-red-400" : "text-blue-400";
+                const reasonText = op.raw_reasons ? op.raw_reasons.join(", ") : "N/A";
+                const scoreText = `Score: <b>${op.normalized_score.toFixed(1)}</b> | Racional: ${reasonText}`;
+
+                if (stake > 0) {
+                    return `
+                        <div class="bg-gray-900/50 p-3 rounded-lg mt-2 border-2 border-amber-400/80 shadow-lg shadow-amber-500/10">
+                            <h4 class="font-bold text-amber-300 text-center mb-2">${op.stake_description}</h4>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-300">Apostar</p>
+                                <p class="text-3xl font-bold text-white">${stake.toFixed(2)} <span class="text-xl font-normal">un.</span></p>
+                                <p class="text-sm text-gray-300">em</p>
+                                <p class="text-2xl font-bold ${profileColor}">${op.name}</p>
+                            </div>
+                            <p class="text-sm text-center text-gray-400 mt-2">Risco da Aposta: <b class="text-white">${op.volatility_description || "N/A"}</b></p>
+                            <p class="text-xs text-center text-gray-400 mt-2 italic">${scoreText}</p>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="bg-gray-900/50 p-3 rounded-lg mt-2 border border-gray-600">
+                            <h4 class="font-bold text-gray-300 text-center mb-2">Observar (Não Apostar)</h4>
+                            <p class="text-center text-gray-400 text-sm">A confiança da IA está abaixo do mínimo para uma recomendação de aposta.</p>
+                            <div class="mt-3 pt-3 border-t border-gray-700 text-xs text-center">
+                                <p class="text-gray-400">Oportunidade principal considerada:</p>
+                                <p class="font-bold ${profileColor}">${op.name}</p>
+                                <p class="text-gray-400 mt-1 italic">${scoreText}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            };
+
+            element.innerHTML = `
+                <div class="card-header"><ion-icon name="bulb-outline"></ion-icon>Boletim da IA Heurística</div>
+                <div>
+                    <p class="text-sm text-gray-400">
+                        Ritmo: <b class="font-semibold ${rhythm.description?.includes("Quente") ? "text-red-400" : "text-blue-400"}">${rhythm.description || "N/A"}</b>
+                    </p>
+                </div>
+                <p class="mt-3 text-sm text-gray-300">${bulletin.summary || "Análise indisponível."}</p>
+                <div class="mt-4">${renderVerdict(bulletin.final_verdict)}</div>
+            `;
+        };
+        
+        // << MELHORIA >> Nova função para renderizar backtest com gráfico
+        const renderBacktestResults = (element, results) => {
+            if (backtestChart) {
+                backtestChart.destroy();
+            }
+
+            let historyHtml = "";
+            if (results.play_history && Array.isArray(results.play_history)) {
+                historyHtml = results.play_history
+                    .map(play => `
+                        <div class="flex justify-between items-center text-xs p-1 rounded ${play.outcome === 'HIT' ? 'bg-green-800/50' : 'bg-red-800/50'}">
+                            <span>${play.bet_on}</span>
+                            <span class="font-bold">${play.outcome} (${play.result_number})</span>
+                            <span>${play.balance} un.</span>
+                        </div>
+                    `).join('');
+            }
+
+            element.innerHTML = `
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
+                    <div><strong>Balanço Final:</strong> <span class="font-bold ${results.final_balance.startsWith('-') ? 'text-red-400' : 'text-green-400'}">${results.final_balance}</span></div>
+                    <div><strong>Taxa de Acerto:</strong> <span class="font-bold text-amber-400">${results.hit_rate}</span></div>
+                    <div><strong>Total de Jogadas:</strong> <span class="font-bold">${results.total_plays}</span></div>
+                    <div><strong>Acertos/Erros:</strong> <span class="text-green-400">${results.hits}</span> / <span class="text-red-400">${results.misses}</span></div>
+                    <div><strong>Max Drawdown:</strong> <span class="font-bold text-red-400">${results.max_drawdown}</span></div>
+                    <div><strong>Max Streak V/D:</strong> <span class="text-green-400">${results.max_win_streak}</span> / <span class="text-red-400">${results.max_loss_streak}</span></div>
+                </div>
+                <canvas id="backtest-chart" class="mt-4"></canvas>
+                <h5 class="font-bold mt-4 mb-2 text-gray-400">Últimas 20 Jogadas Simuladas:</h5>
+                <div class="space-y-1 max-h-48 overflow-y-auto">${historyHtml}</div>
+            `;
+
+            const ctx = document.getElementById('backtest-chart').getContext('2d');
+            backtestChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: results.balance_over_time.length }, (_, i) => i + 1),
+                    datasets: [{
+                        label: 'Balanço da Estratégia',
+                        data: results.balance_over_time,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: { color: 'var(--text-dim)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: 'var(--text-dim)' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        };
+
+        const renderMLPrediction = (element, data) => {
+          if (!element || !data || data.error) {
+            element.innerHTML = `<div class="card-header"><ion-icon name="hardware-chip-outline"></ion-icon>Veredito do ML</div><p class="text-gray-400">${
+              data ? data.error : "Aguardando treinamento do modelo..."
+            }</p>`;
+            return;
+          }
+          const confidencePercent = data.confidence * 100;
+          element.innerHTML = `<div class="card-header"><ion-icon name="hardware-chip-outline"></ion-icon>Veredito do ML</div><p class="text-xs text-gray-400 mb-2">Melhor oportunidade: <strong>${
+            data.target_type
+          }</strong></p><div class="text-center my-3"><p>Aposta Sugerida:</p><p class="text-2xl font-bold text-white">${
+            data.best_bet
+          }</p></div><div class="flex justify-between items-center text-sm mb-1"><span>Confiança do Modelo</span><span class="font-bold">${confidencePercent.toFixed(
+            1
+          )}%</span></div><div class="w-full bg-gray-700 rounded-full h-2"><div class="bg-teal-500 h-2 rounded-full" style="width: ${confidencePercent}%"></div></div>`;
+        };
+        const renderIAPerformance = (element, data) => {
+          if (!element || !data) {
+            element.innerHTML =
+              '<p class="text-gray-500">Nenhum veredito registrado.</p>';
+            return;
+          }
+          const hitRate =
+            data.total > 0 ? ((data.hits / data.total) * 100).toFixed(1) : 0;
+          element.innerHTML = `<div class="text-center mb-3"><p class="text-3xl font-bold text-amber-400">${hitRate}%</p><p class="text-xs text-gray-400">Taxa de Acerto (${
+            data.hits
+          } de ${
+            data.total
+          })</p></div><div class="flex justify-around text-xs"><span class="text-blue-400">Contrarian: ${
+            data.outcomes.filter((o) => o.profile === "Contrarian" && o.hit)
+              .length
+          }/${
+            data.outcomes.filter((o) => o.profile === "Contrarian").length
+          }</span><span class="text-red-400">Momentum: ${
+            data.outcomes.filter((o) => o.profile === "Momentum" && o.hit)
+              .length
+          }/${
+            data.outcomes.filter((o) => o.profile === "Momentum").length
+          }</span></div>`;
+        };
+        const renderAlerts = (element, alerts) => {
+          if (!element || !alerts || alerts.length === 0) {
+            element.innerHTML =
+              '<p class="text-sm text-gray-500">Nenhum alerta no momento.</p>';
+          } else {
+            element.innerHTML = alerts
+              .map(
+                (alert) =>
+                  `<div class="bg-yellow-900/50 border border-yellow-700 text-yellow-300 px-3 py-2 rounded-lg text-xs">${alert}</div>`
+              )
+              .join("");
+          }
+        };
+        const renderFollowerAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="magnet-outline"></ion-icon>Seguidores do ${
+            data.last_number !== null ? data.last_number : ""
+          }</div>`;
+          if (!data.top_followers || data.top_followers.length === 0) {
+            html += '<p class="text-sm text-gray-500">Dados insuficientes.</p>';
+          } else {
+            html +=
+              '<div class="flex flex-wrap gap-2">' +
+              data.top_followers
+                .map(
+                  (item) =>
+                    `<div class="flex items-center gap-2 bg-gray-700/50 p-1 rounded-md">${
+                      createNumberElement(item.num).outerHTML
+                    }<span class="text-sm font-bold">${
+                      item.count
+                    }x</span></div>`
+                )
+                .join("") +
+              "</div>";
+          }
+          element.innerHTML = html;
+        };
+        const renderNeighborAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="git-compare-outline"></ion-icon>Vizinhos do ${
+            data.last_number !== null ? data.last_number : ""
+          }</div>`;
+          if (!data.neighbors || data.neighbors.length === 0) {
+            html += '<p class="text-sm text-gray-500">Dados insuficientes.</p>';
+          } else {
+            html += `<p class="text-sm">Hits: <b>${data.total_hits}</b> | Gap: <b>${data.gap}</b></p>`;
+          }
+          element.innerHTML = html;
+        };
+        const renderStreakAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="trending-up-outline"></ion-icon>Streaks Atuais</div>`;
+          if (Object.keys(data).length === 0) {
+            html +=
+              '<p class="text-sm text-gray-500">Nenhuma sequência ativa.</p>';
+          } else {
+            html +=
+              '<div class="space-y-1 text-sm">' +
+              Object.entries(data)
+                .map(
+                  ([key, value]) =>
+                    `<div><b>${key}:</b> <span class="font-bold text-amber-400">${value.count}x</span> de <b>${value.name}</b></div>`
+                )
+                .join("") +
+              "</div>";
+          }
+          element.innerHTML = html;
+        };
+        const renderPressureAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="swap-horizontal-outline"></ion-icon>Pressão Oposta</div>`;
+          if (Object.keys(data).length === 0) {
+            html +=
+              '<p class="text-sm text-gray-500">Nenhum ponto de pressão.</p>';
+          } else {
+            html +=
+              '<div class="space-y-2 text-sm">' +
+              Object.entries(data)
+                .map(
+                  ([target, info]) =>
+                    `<div class="bg-blue-900/40 p-2 rounded-md"><b>'${target}'</b> sob pressão (${info.streak}x)</div>`
+                )
+                .join("") +
+              "</div>";
+          }
+          element.innerHTML = html;
+        };
+        const renderPostZeroAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="ellipse-outline"></ion-icon>Pós-Zero</div>`;
+          if (!data.most_common_after_zero) {
+            html +=
+              '<p class="text-sm text-gray-500">Aguardando ocorrências.</p>';
+          } else {
+            html += `<p class="text-sm mb-2">Repetição Pré-Zero: <b class="text-amber-400">${data.pre_zero_repetition_rate}</b></p>`;
+            html +=
+              '<div class="flex flex-wrap gap-2">' +
+              data.most_common_after_zero
+                .map(
+                  (item) =>
+                    `<div class="flex items-center gap-1 bg-gray-700/50 p-1 rounded-md text-xs">${
+                      createNumberElement(item.num).outerHTML
+                    }<span>${item.count}x</span></div>`
+                )
+                .join("") +
+              "</div>";
+          }
+          element.innerHTML = html;
+        };
+        const renderSequenceAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="repeat-outline"></ion-icon>Sequências Comuns</div>`;
+          if (Object.keys(data).length === 0) {
+            html += '<p class="text-sm text-gray-500">Dados insuficientes.</p>';
+          } else {
+            html +=
+              '<div class="text-xs space-y-2">' +
+              Object.entries(data)
+                .map(
+                  ([key, value]) =>
+                    `<div><strong class="text-gray-300">${key.replace(
+                      /_/g,
+                      " "
+                    )}</strong><ul>` +
+                    Object.entries(value)
+                      .map(
+                        ([seq, count]) =>
+                          `<li>${seq}: <span class="font-bold">${count}x</span></li>`
+                      )
+                      .join("") +
+                    `</ul></div>`
+                )
+                .join("") +
+              `</div>`;
+          }
+          element.innerHTML = html;
+        };
+        const renderCoverageCycle = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="scan-circle-outline"></ion-icon>Ciclo Cobertura</div>`;
+          if (data.avg_spins_for_full_coverage === "N/A") {
+            html += '<p class="text-sm text-gray-500">Dados insuficientes.</p>';
+          } else {
+            html += `<p class="text-sm">Média: <b class="text-amber-400">${data.avg_spins_for_full_coverage}</b> giros</p><p class="text-xs">Ciclos: ${data.completed_cycles}</p>`;
+          }
+          element.innerHTML = html;
+        };
+        const renderMirrorAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="copy-outline"></ion-icon>Espelhos</div>`;
+          html +=
+            '<div class="text-sm space-y-1">' +
+            Object.entries(data)
+              .map(
+                ([name, stats]) =>
+                  `<div><b>${name}:</b> <span class="text-gray-400">Hits: ${stats.hits}, Gap: ${stats.gap}</span></div>`
+              )
+              .join("") +
+            "</div>";
+          element.innerHTML = html;
+        };
+        const renderFinalAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="filter-outline"></ion-icon>Análise de Finais</div>`;
+          if (data.status || !data.last_final) {
+            html += `<p class="text-sm text-gray-500">${
+              data.status || "Dados insuficientes."
+            }</p>`;
+          } else {
+            html += `<p class="text-sm">Final atual: <b class="text-amber-400">${data.last_final}</b></p><p class="text-xs">Streak: ${data.current_streak}x | Gap: ${data.gap}</p>`;
+          }
+          element.innerHTML = html;
+        };
+        const renderTwinAnalysis = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="layers-outline"></ion-icon>Análise de Gêmeos</div>`;
+          if (data.is_current_a_twin) {
+            html += `<p class="text-sm font-bold text-green-400">GÊMEO ATIVO! (${data.last_twin_number})</p>`;
+          } else {
+            html += `<p class="text-sm text-gray-400">Gap desde o último Gêmeo: <b>${data.gap_since_last_twin}</b></p>`;
+          }
+          const postTwinData = data.post_twin_analysis;
+          if (postTwinData && postTwinData.top_followers) {
+            html += `<h5 class="font-bold text-xs text-gray-400 mt-3 mb-1">SEGUIDORES PÓS-GÊMEO:</h5>`;
+            html +=
+              '<div class="flex flex-wrap gap-1">' +
+              postTwinData.top_followers
+                .map(
+                  (item) =>
+                    `<div class="flex items-center gap-1 bg-gray-700/50 p-1 rounded-md text-xs">${
+                      createNumberElement(item.num).outerHTML
+                    }<span>${item.count}x</span></div>`
+                )
+                .join("") +
+              "</div>";
+          }
+          element.innerHTML = html;
+        };
+        const renderAlternatingPatterns = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="git-commit-outline"></ion-icon>Padrões Alternados</div>`;
+          const patterns = Object.entries(data);
+          if (patterns.length === 0) {
+            html +=
+              '<p class="text-sm text-gray-500">Nenhum padrão de alternância ativo.</p>';
+          } else {
+            html += '<div class="space-y-2 text-sm">';
+            patterns.forEach(([prop, info]) => {
+              const propName = prop.charAt(0).toUpperCase() + prop.slice(1);
+              html += `<div><b>${propName}:</b> <span class="font-bold text-teal-400">${info.streak}x</span> <span class="text-xs text-gray-400">(${info.description})</span></div>`;
+            });
+            html += "</div>";
+          }
+          element.innerHTML = html;
+        };
+        const renderWheelJumps = (element, data) => {
+          if (!element || !data) return;
+          let html = `<div class="card-header !mb-2 !text-base"><ion-icon name="walk-outline"></ion-icon>Salto na Roda</div>`;
+          if (data.status) {
+            html += `<p class="text-sm text-gray-500">${data.status}</p>`;
+          } else {
+            html += `<p class="text-sm mb-2">Último Salto: <b class="font-bold text-white">${data.last_jump}</b> | Média: <b class="text-gray-400">${data.average_jump}</b></p>`;
+            html += `<h5 class="font-bold text-xs text-gray-400 mb-1">SALTOS MAIS COMUNS:</h5>`;
+            html += '<div class="space-y-1">';
+            data.most_common_jumps.forEach((item) => {
+              html += `<div class="text-xs flex justify-between"><span>Distância de <b class="text-amber-400">${item.jump}</b></span> <span>${item.count}x</span></div>`;
+            });
+            html += "</div>";
+          }
+          element.innerHTML = html;
+        };
+
+        const renderMLNumbersPrediction = (element, data) => {
+          if (
+            !element ||
+            !data ||
+            data.error ||
+            !data.predictions ||
+            data.predictions.length === 0
+          ) {
+            element.innerHTML = `<div class="card-header !text-base" style="--accent-purple: #c084fc;"><ion-icon name="dice-outline"></ion-icon>Top 5 Números (ML)</div><p class="text-gray-400 text-sm p-2">${
+              data?.error || "Nenhuma previsão de alta confiança no momento."
+            }</p>`;
+            return;
+          }
+
+          let predictionsHtml = data.predictions
+            .map((pred) => {
+              const confidencePercent = (pred.confidence * 100).toFixed(1);
+              return `
+                <div class="flex items-center justify-between gap-4">
+                    ${createNumberElement(pred.number).outerHTML}
+                    <div class="w-full bg-gray-700 rounded-full h-1.5 flex-1">
+                        <div class="bg-fuchsia-500 h-1.5 rounded-full" style="width: ${confidencePercent}%"></div>
+                    </div>
+                    <span class="text-xs font-mono w-12 text-right">${confidencePercent}%</span>
+                </div>
+              `;
+            })
+            .join("");
+
+          element.innerHTML = `
+            <div class="card-header !text-base" style="--accent-purple: #c084fc;"><ion-icon name="dice-outline"></ion-icon>Top 5 Números (ML)</div>
+            <div class="space-y-3 p-2">
+                ${predictionsHtml}
+            </div>
+          `;
+        };
+
+        const renderLearningAnalysis = (element, data) => {
+          if (!element) return;
+          if (!data || data.length === 0) {
+            element.innerHTML =
+              '<p class="text-center text-gray-500 p-4">Nenhuma análise de veredito registrada ainda.</p>';
+            return;
+          }
+
+          const cardsHtml = data
+            .map((record) => {
+              const wasHit = record.was_hit;
+              const borderColor = wasHit
+                ? "border-green-500/50"
+                : "border-red-500/50";
+              const outcomeIcon = wasHit ? "✅" : "❌";
+              const outcomeText = wasHit ? "ACERTO" : "ERRO";
+
+              let reasonsHtml = "";
+              try {
+                  const reasons = JSON.parse(record.prediction_reasons || '[]');
+                  if (reasons.length > 0) {
+                      reasonsHtml = `
+                          <p class="font-bold text-gray-400 mb-2 mt-3">Sinais da Aposta:</p>
+                          <div class="flex flex-wrap gap-1">
+                              ${reasons.map(r => `<span class="bg-purple-800/60 text-purple-200 text-xs font-medium px-2 py-1 rounded">${r}</span>`).join('')}
+                          </div>
+                      `;
+                  }
+              } catch (e) {}
+
+              let profileHtml = "";
+              try {
+                const profile = JSON.parse(record.winning_number_profile);
+                profileHtml = Object.entries(profile)
+                  .map(
+                    ([key, value]) => `
+                <span class="bg-gray-700 text-xs px-2 py-1 rounded-full">${key}: <strong>${value}</strong></span>
+              `
+                  )
+                  .join("");
+              } catch (e) {}
+
+              let predictedNumsHtml = "";
+              try {
+                const predicted = JSON.parse(record.predicted_numbers);
+                predictedNumsHtml = predicted
+                  .map((num) => createNumberElement(num).outerHTML)
+                  .join("");
+              } catch (e) {}
+
+              return `
+                <div class="card !p-4 border-l-4 ${borderColor} bg-slate-900/30">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono text-xs text-gray-400">${record.timestamp}</span>
+                        <span class="font-bold text-lg">${outcomeIcon} ${outcomeText}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="font-bold text-gray-400 mb-1">Predição do ML (Top 5):</p>
+                            <div class="flex flex-wrap gap-1">${predictedNumsHtml}</div>
+                            <p class="mt-2"><b>Resultado Real:</b></p>
+                            <div class="flex">${createNumberElement(record.actual_number).outerHTML}</div>
+                            ${reasonsHtml} </div>
+                        <div>
+                            <p class="font-bold text-gray-400 mb-2">Análise do Ganhador (${record.actual_number}):</p>
+                            <div class="flex flex-wrap gap-2 mb-3">${profileHtml}</div>
+                            <p class="font-bold text-gray-400 mb-1">Lição da IA:</p>
+                            <p class="text-xs text-gray-300 bg-gray-800/50 p-2 rounded-md">${record.ai_conclusion.replace(/\n/g, "<br>")}</p>
+                        </div>
+                    </div>
+                </div>
+              `;
+            })
+            .join("");
+
+          element.innerHTML = cardsHtml;
+        };
+
+        const renderMLPerformance = (element, data) => {
+          if (!element) return;
+          if (Object.keys(data).length === 0) {
+            element.innerHTML =
+              '<p class="text-center text-gray-500 p-4">Nenhuma métrica de performance registrada. As métricas aparecerão aqui após o primeiro ciclo de treinamento do ML.</p>';
+            return;
+          }
+
+          let html = "";
+          for (const [modelName, metrics] of Object.entries(data)) {
+            const scorePercent = (metrics.best_cv_score * 100).toFixed(2);
+            const featuresHtml = Object.entries(metrics.top_10_features)
+              .sort(([, a], [, b]) => b - a)
+              .map(
+                ([name, importance]) => `
+                        <li class="flex justify-between text-xs">
+                            <span class="truncate pr-2">${name.replace(
+                              /_/g,
+                              " "
+                            )}</span>
+                            <span class="font-mono text-amber-300">${(
+                              importance * 100
+                            ).toFixed(2)}%</span>
+                        </li>
+                    `
+              )
+              .join("");
+
+            html += `
+                <div class="card bg-slate-900/30">
+                    <div class="card-header !text-base border-b border-gray-600 !mb-3 pb-3">
+                        <ion-icon name="pulse-outline"></ion-icon>Modelo de ${modelName.toUpperCase()}
+                    </div>
+                    <div class="text-sm space-y-3">
+                        <div>
+                            <span class="text-gray-400">Acurácia (CV):</span>
+                            <span class="font-bold text-xl ml-2 text-green-400">${scorePercent}%</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Último Treino:</span>
+                            <span class="font-semibold ml-2">${
+                              metrics.last_trained
+                            }</span>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-gray-300 mt-3 mb-2">Features Mais Importantes:</h5>
+                            <ul class="space-y-1.5 pl-2">${featuresHtml}</ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+          }
+          element.innerHTML = html;
+        };
+        const renderOptimizationLog = (element, data) => {
+          if (!element) return;
+          if (!data || data.length === 0) {
+            element.innerHTML =
+              '<p class="text-gray-500 text-xs">Nenhuma otimização automática realizada ainda.</p>';
+            return;
+          }
+          element.innerHTML = data
+            .map(
+              (log) => `
+            <div class="bg-slate-800/60 p-2 rounded-md">
+                <p class="text-xs text-amber-300 font-semibold">${log.message}</p>
+                <p class="text-xs text-gray-400 text-right">${log.strategy} @ ${log.timestamp}</p>
+            </div>
+        `
+            )
+            .join("");
+        };
+        const renderLiveSims = (element, data) => {
+          if (!element) return;
+          if (!data || Object.keys(data).length === 0) {
+            element.innerHTML =
+              '<p class="text-gray-500">Nenhuma simulação em andamento.</p>';
+            return;
+          }
+
+          const sortedSims = Object.entries(data)
+            .filter(([, sim]) => sim.total_plays > 0)
+            .sort(([, a], [, b]) => b.balance - a.balance);
+
+          if (sortedSims.length === 0) {
+            element.innerHTML =
+              '<p class="text-gray-500">Aguardando as primeiras jogadas simuladas...</p>';
+            return;
+          }
+
+          const tableHeader = `
+            <div class="grid grid-cols-4 gap-2 font-bold text-xs text-gray-400 pb-2 border-b border-gray-700">
+                <span>Estratégia</span>
+                <span class="text-right">Balanço</span>
+                <span class="text-right">Acerto</span>
+                <span class="text-right">Jogadas</span>
+            </div>`;
+
+          const tableRows = sortedSims
+            .map(([name, sim], index) => {
+              const balanceColor =
+                sim.balance > 0
+                  ? "text-green-400"
+                  : sim.balance < 0
+                  ? "text-red-400"
+                  : "text-gray-400";
+              const isBest = index === 0 ? "👑" : "";
+
+              return `
+                <div class="grid grid-cols-4 gap-2 py-1.5 border-b border-gray-800">
+                    <span class="truncate font-semibold text-white">${isBest} ${name}</span>
+                    <span class="text-right font-mono ${balanceColor}">${sim.balance.toFixed(
+                1
+              )}</span>
+                    <span class="text-right font-mono text-amber-400">${sim.hit_rate.toFixed(
+                      1
+                    )}%</span>
+                    <span class="text-right font-mono">${sim.total_plays}</span>
+                </div>
+            `;
+            })
+            .join("");
+
+          element.innerHTML = tableHeader + tableRows;
+        };
+        // --- INICIALIZAÇÃO ---
+        renderInputGrid();
+        dom.deleteBtn.addEventListener("click", api.deleteLastSpin);
+        dom.backtest.runBtn.addEventListener("click", api.runBacktest);
+        dom.bankroll.startBtn.addEventListener(
+          "click",
+          api.startBankrollSession
+        );
+        dom.bankroll.stopBtn.addEventListener("click", api.stopBankrollSession);
+        dom.session.startBtn.addEventListener("click", api.startSession);
+        dom.session.stopBtn.addEventListener("click", api.stopSession);
+
+        api.fetchData();
+        api.fetchStrategists();
+        api.fetchLearningData();
+        api.fetchMLPerformance();
+        api.fetchOptimizationLog();
+        api.fetchLiveSims();
+        api.fetchBankrollStatus();
+        api.fetchSessionStatus();
+      });
+    </script>
+  </body>
+</html>

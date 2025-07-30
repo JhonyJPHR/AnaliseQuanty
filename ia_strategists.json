@@ -1,0 +1,321 @@
+{
+  "O Paciente (Contrarian Puro)": {
+    "description": "Foca exclusivamente em apostas que estão estatisticamente muito atrasadas (Gaps altos, Desvios negativos), ignorando tendências.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 8.0,
+        "DEVIATION": 6.0,
+        "COLD_NUMBER_RANK": 4.0,
+        "PRESSURE": 7.0,
+        "REGRESSION_TENSION": 9.0
+      },
+      "momentum": {
+        "STREAK": 0.0,
+        "HOT_NUMBER_RANK": 0,
+        "FOLLOWER": 0,
+        "TERRAIN_MOMENTUM": 0.0,
+        "ALTERNATING_PATTERN_STREAK": 0.0,
+        "COMMON_WHEEL_JUMP": 0,
+        "POST_TWIN_FOLLOWER": 0.0,
+        "SESSION_SECTOR_HEAT": 2.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 4.0,
+        "ML_NUMBER_CONVERGENCE": 2.13,
+        "VOLATILITY_SENSITIVITY": 0.85
+      }
+    }
+  },
+  "O Surfista (Momentum Puro)": {
+    "description": "Acredita que 'a tendência é sua amiga'. Foca exclusivamente em seguir sequências, números quentes e terrenos ativos.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 0.0,
+        "DEVIATION": 0.0,
+        "COLD_NUMBER_RANK": 0.0,
+        "PRESSURE": 0.0,
+        "REGRESSION_TENSION": 0.0
+      },
+      "momentum": {
+        "STREAK": 9.0,
+        "HOT_NUMBER_RANK": 12.58,
+        "FOLLOWER": 10.99,
+        "TERRAIN_MOMENTUM": 6.0,
+        "ALTERNATING_PATTERN_STREAK": 5.0,
+        "COMMON_WHEEL_JUMP": 6.27,
+        "POST_TWIN_FOLLOWER": 6.0,
+        "SESSION_SECTOR_HEAT": 9.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 11.68,
+        "ML_NUMBER_CONVERGENCE": 8.26,
+        "VOLATILITY_SENSITIVITY": 0.5
+      }
+    }
+  },
+  "O Equilibrista (Híbrido)": {
+    "description": "Busca o melhor dos dois mundos. Tenta encontrar uma aposta de tendência que também tenha um bom potencial de correção ou uma aposta atrasada que esteja começando a mostrar força.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 4.0,
+        "DEVIATION": 3.0,
+        "COLD_NUMBER_RANK": 2.31,
+        "PRESSURE": 3.0,
+        "REGRESSION_TENSION": 4.0
+      },
+      "momentum": {
+        "STREAK": 5.0,
+        "HOT_NUMBER_RANK": 5.84,
+        "FOLLOWER": 4.39,
+        "TERRAIN_MOMENTUM": 2.0,
+        "ALTERNATING_PATTERN_STREAK": 2.5,
+        "COMMON_WHEEL_JUMP": 2.78,
+        "POST_TWIN_FOLLOWER": 3.0,
+        "SESSION_SECTOR_HEAT": 7.5,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 11.65,
+        "ML_NUMBER_CONVERGENCE": 12.47,
+        "VOLATILITY_SENSITIVITY": 0.75
+      }
+    }
+  },
+  "O Caçador de Padrões": {
+    "description": "Ignora a maioria dos sinais clássicos e se concentra em padrões de curto prazo, como vizinhos do último número, seguidores e comportamento pós-zero.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 1.0,
+        "DEVIATION": 0.0,
+        "COLD_NUMBER_RANK": 2.2,
+        "PRESSURE": 2.0,
+        "REGRESSION_TENSION": 0.0
+      },
+      "momentum": {
+        "STREAK": 3.0,
+        "HOT_NUMBER_RANK": 5.1,
+        "FOLLOWER": 10.1,
+        "TERRAIN_MOMENTUM": 9.2,
+        "ALTERNATING_PATTERN_STREAK": 9.5,
+        "COMMON_WHEEL_JUMP": 10.0,
+        "POST_TWIN_FOLLOWER": 8.5,
+        "SESSION_SECTOR_HEAT": 10.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 5.0,
+        "ML_NUMBER_CONVERGENCE": 12.0,
+        "VOLATILITY_SENSITIVITY": 0.6
+      }
+    }
+  },
+  "O Gestor de Risco (Cauteloso)": {
+    "description": "Prioriza a preservação de capital, evitando apostas de alta volatilidade. Prefere situações com forte apoio estatístico e baixo risco, focando em apostas de maior probabilidade.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 8.0,
+        "DEVIATION": 7.0,
+        "COLD_NUMBER_RANK": 3.0,
+        "PRESSURE": 5.0,
+        "REGRESSION_TENSION": 2.0
+      },
+      "momentum": {
+        "STREAK": 1.0,
+        "HOT_NUMBER_RANK": 0.0,
+        "FOLLOWER": 1.0,
+        "TERRAIN_MOMENTUM": 2.0,
+        "ALTERNATING_PATTERN_STREAK": 1.0,
+        "COMMON_WHEEL_JUMP": 0.0,
+        "POST_TWIN_FOLLOWER": 0.0,
+        "SESSION_SECTOR_HEAT": 3.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 5.0,
+        "ML_NUMBER_CONVERGENCE": 3.0,
+        "VOLATILITY_SENSITIVITY": 1.2
+      }
+    }
+  },
+  "O Acadêmico (Foco em ML)": {
+    "description": "Coloca sua fé quase que inteiramente nos modelos de Machine Learning. Sinais heurísticos são usados apenas como confirmação secundária. A convicção do modelo de ML é o gatilho principal.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 1.0,
+        "DEVIATION": 1.0,
+        "COLD_NUMBER_RANK": 0.5,
+        "PRESSURE": 0.5,
+        "REGRESSION_TENSION": 0.0
+      },
+      "momentum": {
+        "STREAK": 1.0,
+        "HOT_NUMBER_RANK": 0.72,
+        "FOLLOWER": 2.13,
+        "TERRAIN_MOMENTUM": 1.0,
+        "ALTERNATING_PATTERN_STREAK": 0.5,
+        "COMMON_WHEEL_JUMP": 2.14,
+        "POST_TWIN_FOLLOWER": 1.0,
+        "SESSION_SECTOR_HEAT": 2.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 16.64,
+        "ML_NUMBER_CONVERGENCE": 17.08,
+        "VOLATILITY_SENSITIVITY": 0.7
+      }
+    }
+  },
+  "O Sniper (Caçador de Tensão)": {
+    "description": "Estratégia 'Contrarian' extrema e paciente. Espera por momentos de máxima tensão estatística para apostar em grupos ou números que estão 'frios' há muito tempo, explorando a regressão à média.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 8.0,
+        "DEVIATION": 9.0,
+        "COLD_NUMBER_RANK": 7.0,
+        "PRESSURE": 5.0,
+        "REGRESSION_TENSION": 15.0
+      },
+      "momentum": {
+        "STREAK": 0.0,
+        "HOT_NUMBER_RANK": 0.0,
+        "FOLLOWER": 0.0,
+        "TERRAIN_MOMENTUM": 0.0,
+        "ALTERNATING_PATTERN_STREAK": 0.0,
+        "COMMON_WHEEL_JUMP": 0.0,
+        "POST_TWIN_FOLLOWER": 0.0,
+        "SESSION_SECTOR_HEAT": 0.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 2.0,
+        "ML_NUMBER_CONVERGENCE": 1.0,
+        "VOLATILITY_SENSITIVITY": 0.4
+      }
+    }
+  },
+  "O Fisionomista (Micro-Padrões)": {
+    "description": "Foca intensamente nos padrões sequenciais dos últimos giros. Analisa o que tende a acontecer após certos eventos, como números repetidos ou sequências de cores alternadas.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 1.0,
+        "DEVIATION": 0.5,
+        "COLD_NUMBER_RANK": 2.0,
+        "PRESSURE": 1.0,
+        "REGRESSION_TENSION": 0.0
+      },
+      "momentum": {
+        "STREAK": 4.0,
+        "HOT_NUMBER_RANK": 3.0,
+        "FOLLOWER": 12.0,
+        "TERRAIN_MOMENTUM": 5.0,
+        "ALTERNATING_PATTERN_STREAK": 10.0,
+        "COMMON_WHEEL_JUMP": 8.0,
+        "POST_TWIN_FOLLOWER": 9.0,
+        "SESSION_SECTOR_HEAT": 6.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 6.0,
+        "ML_NUMBER_CONVERGENCE": 8.0,
+        "VOLATILITY_SENSITIVITY": 0.6
+      }
+    }
+  },
+  "O Especialista em Zero": {
+    "description": "Foca no comportamento do número zero e seus vizinhos (Voisins du Zéro). Explora padrões de terreno e sequências que ocorrem ao redor da seção verde da roleta.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 3.0,
+        "DEVIATION": 2.0,
+        "COLD_NUMBER_RANK": 1.0,
+        "PRESSURE": 1.0,
+        "REGRESSION_TENSION": 4.0
+      },
+      "momentum": {
+        "STREAK": 2.0,
+        "HOT_NUMBER_RANK": 3.16,
+        "FOLLOWER": 6.3,
+        "TERRAIN_MOMENTUM": 11.34,
+        "ALTERNATING_PATTERN_STREAK": 1.0,
+        "COMMON_WHEEL_JUMP": 5.27,
+        "POST_TWIN_FOLLOWER": 4.0,
+        "SESSION_SECTOR_HEAT": 7.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 5.0,
+        "ML_NUMBER_CONVERGENCE": 6.31,
+        "VOLATILITY_SENSITIVITY": 0.5
+      }
+    }
+  },
+  "O Apostador de Finais": {
+    "description": "Baseado na aposta de 'finais', aposta em todos os números que terminam com o mesmo dígito, acreditando que estes entram em sequências.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 4.0,
+        "DEVIATION": 2.0,
+        "COLD_NUMBER_RANK": 3.0,
+        "PRESSURE": 3.0,
+        "REGRESSION_TENSION": 2.0
+      },
+      "momentum": {
+        "STREAK": 6.0,
+        "HOT_NUMBER_RANK": 8.0,
+        "FOLLOWER": 7.0,
+        "TERRAIN_MOMENTUM": 2.0,
+        "ALTERNATING_PATTERN_STREAK": 4.0,
+        "COMMON_WHEEL_JUMP": 5.0,
+        "POST_TWIN_FOLLOWER": 6.0,
+        "SESSION_SECTOR_HEAT": 4.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 7.0,
+        "ML_NUMBER_CONVERGENCE": 9.0,
+        "VOLATILITY_SENSITIVITY": 0.65
+      }
+    }
+  },
+  "O Cientista Pragmático (ML + Momentum)": {
+    "description": "Confia no ML, mas exige confirmação de uma tendência real. Só aposta quando a previsão do ML converge com um forte sinal de momentum já em andamento.",
+    "weights": {
+      "contrarian": {
+        "GAP_RATIO": 0.0,
+        "DEVIATION": 0.0,
+        "COLD_NUMBER_RANK": 0.0,
+        "PRESSURE": 0.0,
+        "REGRESSION_TENSION": 0.0
+      },
+      "momentum": {
+        "STREAK": 9.0,
+        "HOT_NUMBER_RANK": 8.0,
+        "FOLLOWER": 7.0,
+        "TERRAIN_MOMENTUM": 6.0,
+        "ALTERNATING_PATTERN_STREAK": 5.0,
+        "COMMON_WHEEL_JUMP": 5.0,
+        "POST_TWIN_FOLLOWER": 6.0,
+        "SESSION_SECTOR_HEAT": 8.0,
+        "FINAL_STREAK": 7.0,
+        "MIRROR_FOLLOWER": 6.0
+      },
+      "fusion": {
+        "ML_CONVICTION_BONUS": 10.0,
+        "ML_NUMBER_CONVERGENCE": 10.0,
+        "VOLATILITY_SENSITIVITY": 0.75
+      }
+    }
+  }
+}

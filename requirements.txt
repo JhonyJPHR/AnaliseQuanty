@@ -1,0 +1,7 @@
+pip install Flask
+pip install SQLAlchemy
+pip install scikit-learn
+pip install pandas
+pip install numpy
+pip install xgboost==2.0.3
+pip install pytest-flask
